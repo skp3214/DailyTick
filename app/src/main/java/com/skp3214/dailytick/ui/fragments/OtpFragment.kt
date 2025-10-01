@@ -57,7 +57,7 @@ class OtpFragment : Fragment() {
 
         binding.btnResendOtp.setOnClickListener {
             startTimer()
-            Toast.makeText(context, "OTP resent", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Please enter any 6-digit number to proceed", Toast.LENGTH_SHORT).show()
         }
 
         startTimer()

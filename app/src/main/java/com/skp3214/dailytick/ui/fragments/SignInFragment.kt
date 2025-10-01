@@ -38,7 +38,7 @@ class SignInFragment : Fragment() {
         }
 
         binding.tvSignUp.setOnClickListener {
-            requireActivity().onBackPressed()
+            requireActivity().onBackPressedDispatcher.onBackPressed()
         }
     }
 

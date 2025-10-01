@@ -25,7 +25,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:gravity="center"
-        android:text="Enter the 6-digit OTP sent to your email"
+        android:text="Please enter any 6-digit random number as OTP"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_title" />
@@ -44,7 +44,7 @@
             android:id="@+id/et_otp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Enter OTP"
+            android:hint="Enter any 6-digit number"
             android:inputType="number"
             android:maxLength="6" />
 
