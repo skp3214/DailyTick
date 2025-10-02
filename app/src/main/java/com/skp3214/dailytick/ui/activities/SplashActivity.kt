@@ -4,25 +4,34 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.skp3214.dailytick.MainActivity
 import com.skp3214.dailytick.R
+import com.skp3214.dailytick.ui.viewmodel.AuthViewModel
+import kotlinx.coroutines.launch
 
 class SplashActivity : AppCompatActivity() {
+    private val authViewModel: AuthViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
 
         Handler(Looper.getMainLooper()).postDelayed({
-            val isLoggedIn = getSharedPreferences("user_prefs", MODE_PRIVATE)
-                .getBoolean("is_logged_in", false)
+            checkUserLoginStatus()
+        }, 2000)
+    }
 
-            if (isLoggedIn) {
-                startActivity(Intent(this, MainActivity::class.java))
+    private fun checkUserLoginStatus() {
+        lifecycleScope.launch {
+            if (authViewModel.isUserLoggedIn()) {
+                startActivity(Intent(this@SplashActivity, MainActivity::class.java))
             } else {
-                startActivity(Intent(this, AuthActivity::class.java))
+                startActivity(Intent(this@SplashActivity, AuthActivity::class.java))
             }
             finish()
-        }, 2000)
+        }
     }
 }
