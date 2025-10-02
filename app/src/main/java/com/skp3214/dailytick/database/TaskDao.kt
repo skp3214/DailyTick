@@ -2,28 +2,26 @@ package com.skp3214.dailytick.database
 
 import androidx.room.*
 import com.skp3214.dailytick.models.Task
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TaskDao {
-    @Query("SELECT * FROM task WHERE isCompleted = 0 ORDER BY dueDate ASC")
-    suspend fun getPendingTasks(): List<Task>
 
-    @Query("SELECT * FROM task WHERE isCompleted = 1 ORDER BY dueDate ASC")
-    suspend fun getCompletedTasks(): List<Task>
+    @Query("SELECT * FROM tasks WHERE isCompleted = 0 AND userEmail = :userEmail ORDER BY createdAt DESC")
+    fun getPendingTasks(userEmail: String): Flow<List<Task>>
 
+    @Query("SELECT * FROM tasks WHERE isCompleted = 1 AND userEmail = :userEmail ORDER BY completedAt DESC")
+    fun getCompletedTasks(userEmail: String): Flow<List<Task>>
 
-    @Query("SELECT COUNT(*) FROM task")
-    suspend fun getAllCount(): Int
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(task: Task): Long
+    @Insert
+    suspend fun insertTask(task: Task): Long
 
     @Update
-    suspend fun update(task: Task)
+    suspend fun updateTask(task: Task)
 
     @Delete
-    suspend fun delete(task: Task)
+    suspend fun deleteTask(task: Task)
 
-    @Query("UPDATE task SET isCompleted = :isCompleted WHERE id = :taskId")
-    suspend fun updateTaskCompletion(taskId: Int, isCompleted: Boolean)
+    @Query("UPDATE tasks SET isCompleted = :isCompleted, completedAt = :completedAt WHERE id = :id")
+    suspend fun updateTaskCompletion(id: Long, isCompleted: Boolean, completedAt: Long?)
 }

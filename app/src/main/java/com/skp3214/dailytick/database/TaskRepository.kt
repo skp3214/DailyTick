@@ -2,31 +2,28 @@ package com.skp3214.dailytick.database
 
 import com.skp3214.dailytick.models.Task
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import java.util.Date
 
 class TaskRepository(private val taskDao: TaskDao) {
 
-    fun getPendingTasks(): Flow<List<Task>> = flow {
-        emit(taskDao.getPendingTasks())
-    }
+    fun getPendingTasks(userEmail: String): Flow<List<Task>> = taskDao.getPendingTasks(userEmail)
 
-    fun getCompletedTasks(): Flow<List<Task>> = flow {
-        emit(taskDao.getCompletedTasks())
-    }
+    fun getCompletedTasks(userEmail: String): Flow<List<Task>> = taskDao.getCompletedTasks(userEmail)
 
     suspend fun insert(task: Task): Long {
-        return taskDao.insert(task)
+        return taskDao.insertTask(task)
     }
 
     suspend fun update(task: Task) {
-        taskDao.update(task)
+        taskDao.updateTask(task)
     }
 
     suspend fun delete(task: Task) {
-        taskDao.delete(task)
+        taskDao.deleteTask(task)
     }
 
-    suspend fun updateTaskCompletion(taskId: Int, isCompleted: Boolean) {
-        taskDao.updateTaskCompletion(taskId, isCompleted)
+    suspend fun updateTaskCompletion(taskId: Long, isCompleted: Boolean) {
+        val completedAt = if (isCompleted) Date().time else null
+        taskDao.updateTaskCompletion(taskId, isCompleted, completedAt)
     }
 }
