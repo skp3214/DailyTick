@@ -5,22 +5,21 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
-import com.skp3214.dailytick.R
-import com.skp3214.dailytick.databinding.DialogAddTaskBinding
 import com.skp3214.dailytick.models.Task
+import com.skp3214.dailytick.databinding.DialogAddTaskBinding
 import com.skp3214.dailytick.ui.viewmodel.TaskViewModel
-import java.util.Calendar
+import java.text.SimpleDateFormat
+import java.util.*
 
 class AddTaskDialogFragment : DialogFragment() {
     private var _binding: DialogAddTaskBinding? = null
     private val binding get() = _binding!!
 
     private val taskViewModel: TaskViewModel by activityViewModels()
-    private var existingTask: Task? = null
+    private var editingTask: Task? = null
+    private var selectedDate: Date? = null
 
     companion object {
         private const val ARG_TASK = "task"
@@ -36,7 +35,12 @@ class AddTaskDialogFragment : DialogFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setStyle(STYLE_NORMAL, R.style.Theme_DailyTick)
+        editingTask = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            arguments?.getSerializable(ARG_TASK, Task::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            arguments?.getSerializable(ARG_TASK) as? Task
+        }
     }
 
     override fun onCreateView(
@@ -51,27 +55,18 @@ class AddTaskDialogFragment : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupPrioritySpinner()
-        setupDatePicker()
+        setupUI()
+        setupClickListeners()
+        populateFields()
+    }
 
-        // Check if editing existing task
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            arguments?.getSerializable(ARG_TASK, Task::class.java)?.let { task ->
-                existingTask = task
-                populateFields(task)
-                binding.tvDialogTitle.text = "Edit Task"
-                binding.btnSave.text = "Update"
-            }
-        } else {
-            @Suppress("DEPRECATION")
-            arguments?.getSerializable(ARG_TASK)?.let { task ->
-                existingTask = task as Task
-                populateFields(task)
-                binding.tvDialogTitle.text = "Edit Task"
-                binding.btnSave.text = "Update"
-            }
-        }
+    private fun setupUI() {
+        binding.tvDialogTitle.text = if (editingTask != null) "Edit Task" else "Add New Task"
 
+        binding.btnSave.text = if (editingTask != null) "Update" else "Save"
+    }
+
+    private fun setupClickListeners() {
         binding.btnCancel.setOnClickListener {
             dismiss()
         }
@@ -79,78 +74,91 @@ class AddTaskDialogFragment : DialogFragment() {
         binding.btnSave.setOnClickListener {
             saveTask()
         }
-    }
 
-    private fun setupPrioritySpinner() {
-        val priorities = arrayOf("High", "Medium", "Low")
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, priorities)
-        binding.spinnerPriority.setAdapter(adapter)
-        binding.spinnerPriority.setText("Medium", false)
-    }
-
-    private fun setupDatePicker() {
         binding.etDueDate.setOnClickListener {
-            val calendar = Calendar.getInstance()
-            val datePickerDialog = DatePickerDialog(
-                requireContext(),
-                { _, year, month, dayOfMonth ->
-                    val selectedDate = String.format("%04d-%02d-%02d", year, month + 1, dayOfMonth)
-                    binding.etDueDate.setText(selectedDate)
-                },
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
-            )
-            datePickerDialog.datePicker.minDate = System.currentTimeMillis()
-            datePickerDialog.show()
+            showDatePicker()
         }
     }
 
-    private fun populateFields(task: Task) {
-        binding.etTaskTitle.setText(task.title)
-        binding.etTaskDescription.setText(task.description)
-        binding.etDueDate.setText(task.dueDate)
-        binding.spinnerPriority.setText(task.priority, false)
+    private fun populateFields() {
+        editingTask?.let { task ->
+            binding.etTaskTitle.setText(task.title)
+            binding.etTaskDescription.setText(task.description)
+
+            when (task.priority) {
+                "HIGH" -> binding.chipGroupPriority.check(binding.chipHigh.id)
+                "MEDIUM" -> binding.chipGroupPriority.check(binding.chipMedium.id)
+                "LOW" -> binding.chipGroupPriority.check(binding.chipLow.id)
+            }
+
+            task.dueDate?.let { date ->
+                selectedDate = date
+                val formatter = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+                binding.etDueDate.setText(formatter.format(date))
+            }
+        }
+    }
+
+    private fun showDatePicker() {
+        val calendar = Calendar.getInstance()
+        selectedDate?.let { calendar.time = it }
+
+        val datePickerDialog = DatePickerDialog(
+            requireContext(),
+            { _, year, month, dayOfMonth ->
+                val calendar = Calendar.getInstance()
+                calendar.set(year, month, dayOfMonth)
+                selectedDate = calendar.time
+
+                val formatter = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+                binding.etDueDate.setText(formatter.format(selectedDate!!))
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        )
+
+        datePickerDialog.show()
     }
 
     private fun saveTask() {
         val title = binding.etTaskTitle.text.toString().trim()
-        val description = binding.etTaskDescription.text.toString().trim()
-        val dueDate = binding.etDueDate.text.toString().trim()
-        val priority = binding.spinnerPriority.text.toString()
 
         if (title.isEmpty()) {
-            binding.etTaskTitle.error = "Title is required"
+            binding.etTaskTitle.error = "Task title is required"
             return
         }
 
-        if (dueDate.isEmpty()) {
-            binding.etDueDate.error = "Due date is required"
-            return
+        val description = binding.etTaskDescription.text.toString().trim()
+        val safeDescription = description.ifEmpty { null }
+
+        val priority = when (binding.chipGroupPriority.checkedChipId) {
+            binding.chipHigh.id -> "HIGH"
+            binding.chipMedium.id -> "MEDIUM"
+            binding.chipLow.id -> "LOW"
+            else -> "LOW"
         }
 
-        val task = if (existingTask != null) {
-            existingTask!!.copy(
+        if (editingTask != null) {
+            val updatedTask = editingTask!!.copy(
                 title = title,
-                description = description,
-                dueDate = dueDate,
-                priority = priority
+                description = safeDescription,
+                priority = priority,
+                dueDate = selectedDate
             )
+            taskViewModel.updateTask(updatedTask)
         } else {
-            Task(
+            val newTask = Task(
+                id = 0,
                 title = title,
-                description = description,
-                dueDate = dueDate,
-                priority = priority
+                description = safeDescription,
+                priority = priority,
+                dueDate = selectedDate,
+                isCompleted = false,
+                createdAt = Date(),
+                userEmail = ""
             )
-        }
-
-        if (existingTask != null) {
-            taskViewModel.updateTask(task)
-            Toast.makeText(context, "Task updated successfully", Toast.LENGTH_SHORT).show()
-        } else {
-            taskViewModel.insertTask(task)
-            Toast.makeText(context, "Task added successfully", Toast.LENGTH_SHORT).show()
+            taskViewModel.addTask(newTask)
         }
 
         dismiss()
