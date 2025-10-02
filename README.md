@@ -1,4 +1,4 @@
-# DailyTick - Task Management App
+<img width="971" height="1280" alt="image" src="https://github.com/user-attachments/assets/b6a69d6a-1254-4bf6-8db5-3ce0d63464f9" /># DailyTick - Task Management App
 
 ![Android](https://img.shields.io/badge/Android-API%2021+-green.svg)
 ![Kotlin](https://img.shields.io/badge/Kotlin-100%25-blue.svg)
@@ -32,8 +32,7 @@ A modern Android task management application built with Kotlin, featuring user a
 - 🌙 **Night Theme** - Enhanced dark mode experience
 
 ## 📱 Screenshots
-
-
+<img width="971" height="1280" alt="image" src="https://github.com/user-attachments/assets/769de341-fbda-480a-a9b0-b3d5394e4ddd" />
 
 ### Authentication Flow
 | Sign Up | Sign In | OTP Verification |
