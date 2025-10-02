@@ -1,4 +1,4 @@
-<img width="971" height="1280" alt="image" src="https://github.com/user-attachments/assets/b6a69d6a-1254-4bf6-8db5-3ce0d63464f9" /># DailyTick - Task Management App
+# DailyTick - Task Management App
 
 ![Android](https://img.shields.io/badge/Android-API%2021+-green.svg)
 ![Kotlin](https://img.shields.io/badge/Kotlin-100%25-blue.svg)
