@@ -7,14 +7,19 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.skp3214.dailytick.databinding.FragmentOtpBinding
 import com.skp3214.dailytick.ui.activities.AuthActivity
+import com.skp3214.dailytick.ui.viewmodel.AuthState
+import kotlinx.coroutines.launch
 
 class OtpFragment : Fragment() {
     private var _binding: FragmentOtpBinding? = null
     private val binding get() = _binding!!
     private var countDownTimer: CountDownTimer? = null
     private var isSignup = false
+
+    private lateinit var authViewModel: com.skp3214.dailytick.ui.viewmodel.AuthViewModel
 
     companion object {
         private const val ARG_IS_SIGNUP = "is_signup"
@@ -45,11 +50,13 @@ class OtpFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        authViewModel = (activity as AuthActivity).provideAuthViewModel()
+        observeAuthState()
+
         binding.btnVerifyOtp.setOnClickListener {
             val otp = binding.etOtp.text.toString().trim()
             if (otp.length == 6) {
-                // Simulate OTP verification success
-                (activity as AuthActivity).onAuthSuccess()
+                (activity as AuthActivity).completeAuthentication()
             } else {
                 Toast.makeText(context, "Invalid OTP", Toast.LENGTH_SHORT).show()
             }
@@ -61,6 +68,35 @@ class OtpFragment : Fragment() {
         }
 
         startTimer()
+    }
+
+    private fun observeAuthState() {
+        lifecycleScope.launch {
+            authViewModel.authState.collect { state ->
+                when (state) {
+                    is AuthState.Loading -> {
+                        binding.btnVerifyOtp.isEnabled = false
+                        binding.btnVerifyOtp.text = "Verifying..."
+                    }
+                    is AuthState.SignInSuccess -> {
+                        binding.btnVerifyOtp.isEnabled = true
+                        binding.btnVerifyOtp.text = "Verify OTP"
+                        (activity as AuthActivity).onAuthSuccess()
+                        authViewModel.resetAuthState()
+                    }
+                    is AuthState.Error -> {
+                        binding.btnVerifyOtp.isEnabled = true
+                        binding.btnVerifyOtp.text = "Verify OTP"
+                        Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
+                        authViewModel.resetAuthState()
+                    }
+                    else -> {
+                        binding.btnVerifyOtp.isEnabled = true
+                        binding.btnVerifyOtp.text = "Verify OTP"
+                    }
+                }
+            }
+        }
     }
 
     private fun startTimer() {
