@@ -41,12 +41,9 @@ class HomeFragment : Fragment() {
 
     private fun setupRecyclerViews() {
         pendingTasksAdapter = TaskAdapter(
-            tasks = emptyList(),
             onTaskClick = { task ->
                 val dialog = AddTaskDialogFragment.newInstance(task)
                 dialog.show(parentFragmentManager, "EditTaskDialog")
-            },
-            onTaskLongClick = { task ->
             },
             onCompleteClick = { task ->
                 taskViewModel.toggleTaskCompletion(task)
@@ -57,13 +54,9 @@ class HomeFragment : Fragment() {
         )
 
         completedTasksAdapter = TaskAdapter(
-            tasks = emptyList(),
             onTaskClick = { task ->
-                // Edit task on click
                 val dialog = AddTaskDialogFragment.newInstance(task)
                 dialog.show(parentFragmentManager, "EditTaskDialog")
-            },
-            onTaskLongClick = { task ->
             },
             onCompleteClick = { task ->
                 taskViewModel.toggleTaskCompletion(task)

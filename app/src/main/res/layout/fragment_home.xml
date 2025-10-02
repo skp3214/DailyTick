@@ -4,93 +4,159 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.fragments.HomeFragment">
+    android:background="?android:attr/colorBackground">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp">
+        android:layout_marginBottom="80dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/tv_home_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Your Daily Tasks"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp" />
+            android:orientation="vertical"
+            android:paddingTop="16dp">
 
             <!-- Pending Tasks Section -->
-            <TextView
-                android:id="@+id/tv_pending_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Pending Tasks"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="8dp" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_pending_tasks"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
-                tools:listitem="@layout/item_tasks" />
+                android:orientation="vertical"
+                android:layout_marginBottom="24dp">
 
-            <TextView
-                android:id="@+id/tv_no_pending_tasks"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="No pending tasks"
-                android:textAlignment="center"
-                android:padding="24dp"
-                android:visibility="gone" />
+                <!-- Section Header -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginBottom="12dp"
+                    android:text="Pending Tasks"
+                    android:textColor="?attr/colorOnBackground"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-medium" />
+
+                <!-- Pending Tasks RecyclerView -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvPendingTasks"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    tools:listitem="@layout/item_tasks" />
+
+                <!-- No Pending Tasks Message -->
+                <LinearLayout
+                    android:id="@+id/tvNoPendingTasks"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginVertical="32dp"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="✅"
+                        android:textSize="48sp"
+                        android:layout_marginBottom="12dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="No pending tasks"
+                        android:textColor="?attr/colorOnBackground"
+                        android:textSize="16sp"
+                        android:alpha="0.7"
+                        android:fontFamily="sans-serif" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="All caught up! Tap + to add a new task"
+                        android:textColor="?attr/colorOnBackground"
+                        android:textSize="14sp"
+                        android:alpha="0.5"
+                        android:fontFamily="sans-serif" />
+
+                </LinearLayout>
+
+            </LinearLayout>
 
             <!-- Completed Tasks Section -->
-            <TextView
-                android:id="@+id/tv_completed_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Completed Tasks"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="8dp" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_completed_tasks"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
-                tools:listitem="@layout/item_tasks" />
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/tv_no_completed_tasks"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="No completed tasks"
-                android:textAlignment="center"
-                android:padding="24dp"
-                android:visibility="gone" />
+                <!-- Section Header -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginBottom="12dp"
+                    android:text="Completed Tasks"
+                    android:textColor="?attr/colorOnBackground"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-medium" />
+
+                <!-- Completed Tasks RecyclerView -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvCompletedTasks"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    android:alpha="0.8"
+                    tools:listitem="@layout/item_tasks" />
+
+                <!-- No Completed Tasks Message -->
+                <LinearLayout
+                    android:id="@+id/tvNoCompletedTasks"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginVertical="32dp"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="📝"
+                        android:textSize="48sp"
+                        android:layout_marginBottom="12dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="No completed tasks yet"
+                        android:textColor="?attr/colorOnBackground"
+                        android:textSize="16sp"
+                        android:alpha="0.7"
+                        android:fontFamily="sans-serif" />
+
+                </LinearLayout>
+
+            </LinearLayout>
 
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>
 
+    <!-- Floating Action Button -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_add_task"
+        android:id="@+id/fabAddTask"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         android:contentDescription="Add new task"
-        app:srcCompat="@android:drawable/ic_input_add" />
+        app:backgroundTint="@color/light_green"
+        app:tint="@color/black"
+        app:srcCompat="@drawable/ic_add_24" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
