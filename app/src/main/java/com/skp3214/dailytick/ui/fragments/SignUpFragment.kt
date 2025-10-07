@@ -39,7 +39,6 @@ class SignUpFragment : Fragment() {
             val confirmPassword = binding.etConfirmPassword.text.toString().trim()
 
             if (validateInputs(email, password, confirmPassword)) {
-                authViewModel.signUp(email, password)
                 (activity as AuthActivity).navigateToOtp(true, email, password)
             }
         }
@@ -60,8 +59,6 @@ class SignUpFragment : Fragment() {
                     is AuthState.SignUpSuccess -> {
                         binding.btnSignUp.isEnabled = true
                         binding.btnSignUp.text = "Sign Up"
-                        (activity as AuthActivity).navigateToOtp(true)
-                        authViewModel.resetAuthState()
                     }
                     is AuthState.Error -> {
                         binding.btnSignUp.isEnabled = true

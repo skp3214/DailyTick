@@ -11,7 +11,7 @@ import com.skp3214.dailytick.data.converters.DateConverter
 
 @Database(
     entities = [Task::class, User::class],
-    version = 7,
+    version = 8,
     exportSchema = false
 )
 @TypeConverters(DateConverter::class)
@@ -29,9 +29,9 @@ abstract class TaskDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     TaskDatabase::class.java,
-                    "daily_tick_database_v7"
+                    "daily_tick_database_v8"
                 )
-                .fallbackToDestructiveMigration(true)
+                .fallbackToDestructiveMigration()
                 .build()
                 INSTANCE = instance
                 instance

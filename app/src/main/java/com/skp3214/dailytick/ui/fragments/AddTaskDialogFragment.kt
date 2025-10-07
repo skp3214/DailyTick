@@ -130,7 +130,7 @@ class AddTaskDialogFragment : DialogFragment() {
         }
 
         val description = binding.etTaskDescription.text.toString().trim()
-        val safeDescription = description.ifEmpty { null }
+        val safeDescription = if (description.isEmpty()) null else description
 
         val priority = when (binding.chipGroupPriority.checkedChipId) {
             binding.chipHigh.id -> "HIGH"

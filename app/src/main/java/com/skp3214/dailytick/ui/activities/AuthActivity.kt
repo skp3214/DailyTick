@@ -20,7 +20,6 @@ class AuthActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAuthBinding
     private val authViewModel: AuthViewModel by viewModels()
 
-    // Store temporary credentials for OTP verification
     private var tempEmail: String = ""
     private var tempPassword: String = ""
     private var isSignupFlow: Boolean = false
@@ -33,7 +32,22 @@ class AuthActivity : AppCompatActivity() {
         observeAuthState()
 
         if (savedInstanceState == null) {
-            replaceFragment(SignUpFragment())
+            lifecycleScope.launch {
+                authViewModel.authState.collect { state ->
+                    when (state) {
+                        is AuthState.SignInSuccess -> {
+                            onAuthSuccess()
+                        }
+                        is AuthState.Idle -> {
+                            if (supportFragmentManager.fragments.isEmpty()) {
+                                replaceFragment(SignUpFragment())
+                            }
+                        }
+                        else -> {
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -45,7 +59,6 @@ class AuthActivity : AppCompatActivity() {
                         onAuthSuccess()
                     }
                     else -> {
-                        // Handle other states in fragments
                     }
                 }
             }
@@ -77,16 +90,13 @@ class AuthActivity : AppCompatActivity() {
 
     fun completeAuthentication() {
         if (isSignupFlow) {
-            // For signup, the user is already registered in the database
-            // Just log them in after OTP verification
-            authViewModel.signIn(tempEmail, tempPassword)
+            authViewModel.signUp(tempEmail, tempPassword)
         } else {
-            // For signin, perform the actual login
             authViewModel.signIn(tempEmail, tempPassword)
         }
     }
 
-    // Remove the separate getAuthViewModel() function to avoid platform declaration clash
-    // Fragments can access authViewModel directly or we'll provide it through a different method name
-    fun provideAuthViewModel() = authViewModel
+    fun provideAuthViewModel(): AuthViewModel {
+        return authViewModel
+    }
 }

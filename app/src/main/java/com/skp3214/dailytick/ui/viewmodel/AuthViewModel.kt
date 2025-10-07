@@ -14,10 +14,11 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     private val database = TaskDatabase.getDatabase(application)
     private val userRepository = UserRepository(database.userDao())
 
-    private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
+    private val _authState = MutableStateFlow<AuthState>(AuthState.Loading)
     val authState: StateFlow<AuthState> = _authState.asStateFlow()
 
     private val _currentUser = MutableStateFlow<String?>(null)
+    val currentUser: StateFlow<String?> = _currentUser.asStateFlow()
 
     init {
         checkCurrentUser()
@@ -26,7 +27,13 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     private fun checkCurrentUser() {
         viewModelScope.launch {
             val user = userRepository.getCurrentUser()
-            _currentUser.value = user?.email
+            if (user != null) {
+                _currentUser.value = user.email
+                _authState.value = AuthState.SignInSuccess
+            } else {
+                _currentUser.value = null
+                _authState.value = AuthState.Idle
+            }
         }
     }
 
@@ -35,7 +42,13 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             _authState.value = AuthState.Loading
             val success = userRepository.registerUser(email, password)
             if (success) {
-                _authState.value = AuthState.SignUpSuccess
+                val loginSuccess = userRepository.loginUser(email, password)
+                if (loginSuccess) {
+                    _currentUser.value = email
+                    _authState.value = AuthState.SignInSuccess
+                } else {
+                    _authState.value = AuthState.Error("Registration successful but login failed")
+                }
             } else {
                 _authState.value = AuthState.Error("User already exists")
             }

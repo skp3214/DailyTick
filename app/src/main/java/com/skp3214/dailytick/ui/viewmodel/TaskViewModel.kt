@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.util.Date
 
 class TaskViewModel(application: Application) : AndroidViewModel(application) {
     private val database = TaskDatabase.getDatabase(application)
@@ -24,6 +25,7 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
     val completedTasks: StateFlow<List<Task>> = _completedTasks.asStateFlow()
 
     private val _currentUser = MutableStateFlow<String?>(null)
+    val currentUser: StateFlow<String?> = _currentUser.asStateFlow()
 
     init {
         refreshTasks()
@@ -62,6 +64,7 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
             if (user != null) {
                 val taskWithUser = task.copy(userEmail = user.email)
                 taskRepository.insert(taskWithUser)
+                refreshTasksForCurrentUser()
             }
         }
     }
@@ -69,18 +72,45 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
     fun updateTask(task: Task) {
         viewModelScope.launch {
             taskRepository.update(task)
+            refreshTasksForCurrentUser()
         }
     }
 
     fun deleteTask(task: Task) {
         viewModelScope.launch {
             taskRepository.delete(task)
+            refreshTasksForCurrentUser()
         }
     }
 
     fun toggleTaskCompletion(task: Task) {
         viewModelScope.launch {
-            taskRepository.updateTaskCompletion(task.id, !task.isCompleted)
+            val updatedTask = task.copy(
+                isCompleted = !task.isCompleted,
+                completedAt = if (!task.isCompleted) Date() else null
+            )
+            taskRepository.update(updatedTask)
+            refreshTasksForCurrentUser()
+        }
+    }
+
+    private fun refreshTasksForCurrentUser() {
+        viewModelScope.launch {
+            val user = userRepository.getCurrentUser()
+            if (user != null) {
+                taskRepository.getPendingTasks(user.email).collect { tasks ->
+                    _pendingTasks.value = tasks
+                }
+            }
+        }
+
+        viewModelScope.launch {
+            val user = userRepository.getCurrentUser()
+            if (user != null) {
+                taskRepository.getCompletedTasks(user.email).collect { tasks ->
+                    _completedTasks.value = tasks
+                }
+            }
         }
     }
 }

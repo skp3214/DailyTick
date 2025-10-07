@@ -32,7 +32,8 @@ A modern Android task management application built with Kotlin, featuring user a
 - 🌙 **Night Theme** - Enhanced dark mode experience
 
 ## 📱 Screenshots
-<img width="971" height="1280" alt="image" src="https://github.com/user-attachments/assets/769de341-fbda-480a-a9b0-b3d5394e4ddd" />
+
+
 
 ### Authentication Flow
 | Sign Up | Sign In | OTP Verification |
