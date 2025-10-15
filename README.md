@@ -7,6 +7,8 @@
 
 A modern Android task management application built with Kotlin, featuring user authentication, task isolation, and a clean Material Design interface.
 
+<img width="2245" height="1587" alt="DailyTick" src="https://github.com/user-attachments/assets/c408db61-4a12-424e-bb0b-0cd5cc41d65e" />
+
 ## 🚀 Features
 
 ### Core Functionality
